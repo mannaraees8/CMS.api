@@ -22,8 +22,15 @@ public class CustomerController : ControllerBase
 
     // GET: api/Customer
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
+    public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
+        var totalCustomers=await _context.Customer.CountAsync();
+        var totalPages = (int)Math.Ceiling((double)totalCustomers / pageSize);
+        var customers=await _context.Customer
+            .OrderBy(c=>c.Id)
+            .Skip((page-1)*pageSize)
+            .Take(pageSize)
+            .ToListAsync();
         return await _context.Customer.ToListAsync();
     }
 
